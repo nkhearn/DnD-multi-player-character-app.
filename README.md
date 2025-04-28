@@ -69,13 +69,12 @@ your-project-folder/
 ├── dnd.py
 ├── app.py
 ├── viewer_app.py
-├── characters/  (This directory will be created automatically on first run if it doesn't exist)
+├── characters/ 
 └── templates/
 ├── indexdm.html
 ├── character.html
 └── viewer.html
-└── static/      (This directory will be created automatically on first run if it doesn't exist)
-└── ... (any static files like CSS, JS, images go here)
+└── static/ 
 ```
 The `characters`, `templates`, and `static` directories will be created if they don't exist when the Flask apps are first run.
 
