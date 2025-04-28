@@ -1,0 +1,14 @@
+{
+    "name": "BlubbaDaMoo",
+    "max_health": 100,
+    "_current_health": 80,
+    "armour_class": 16,
+    "strength": 14,
+    "dexterity": 12,
+    "constitution": 16,
+    "intelligence": 8,
+    "wisdom": 10,
+    "charisma": 15,
+    "_conditions": [],
+    "_inventory": []
+}

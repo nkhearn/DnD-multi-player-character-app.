@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ character.name }} - Viewer</title>
+    {# Link to the shared CSS file #}
+    <link rel="stylesheet" href="{{ url_for('static', filename='dm.css') }}">
+     <style>
+        /* Basic adjustments for the viewer page if needed */
+        body {
+             background-color: #fefbf5; /* Lighter background for viewing */
+             color: #333; /* Darker text for readability */
+        }
+        .container {
+            border: none; /* Remove the border from the viewer */
+            box-shadow: none; /* Remove shadow */
+            padding: 20px;
+        }
+        h1, h2 {
+             color: #4a3b2d; /* Use the dark readable color */
+        }
+
+         /* Style for structured items in the viewer */
+         .structured-item-viewer {
+            border: 1px solid #c8a98a;
+            padding: 10px;
+            margin-bottom: 15px;
+            background-color: #e0d4b6; /* Lighter parchment background */
+            border-radius: 5px;
+         }
+
+        .structured-item-viewer h3 {
+            margin-top: 0;
+            color: #5a4b3c;
+            border-bottom: 1px solid #c8a98a;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+         }
+
+         .structured-item-viewer p {
+             margin: 5px 0;
+             padding-left: 10px; /* Indent details slightly */
+         }
+
+         .stat-group-viewer {
+             margin-bottom: 10px;
+         }
+         .stat-group-viewer strong {
+              display: inline-block;
+              min-width: 120px; /* Align labels */
+         }
+
+         .abilities-viewer {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+             padding: 15px;
+             border: 1px solid #c8a98a;
+             background-color: #f5ebe0;
+            border-radius: 5px;
+            text-align: center;
+         }
+         .abilities-viewer .stat-viewer {
+             border: 1px solid #d4b28c;
+             padding: 8px;
+             border-radius: 4px;
+              background-color: #fef8ed;
+         }
+
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ character.name }}</h1>
+
+        <h2>Stats</h2>
+         <div class="abilities-viewer">
+             <div class="stat-viewer"><strong>Max Health:</strong> {{ character.max_health }}</div>
+             <div class="stat-viewer"><strong>Current Health:</strong> {{ character._current_health }}</div>
+             <div class="stat-viewer"><strong>Armour Class:</strong> {{ character.armour_class }}</div>
+         </div>
+
+        <h2>Abilities</h2>
+         <div class="abilities-viewer">
+            <div class="stat-viewer"><strong>STR:</strong> {{ character.strength }}</div>
+            <div class="stat-viewer"><strong>DEX:</strong> {{ character.dexterity }}</div>
+            <div class="stat-viewer"><strong>CON:</strong> {{ character.constitution }}</div>
+            <div class="stat-viewer"><strong>INT:</strong> {{ character.intelligence }}</div>
+            <div class="stat-viewer"><strong>WIS:</strong> {{ character.wisdom }}</div>
+            <div class="stat-viewer"><strong>CHA:</strong> {{ character.charisma }}</div>
+         </div>
+
+
+        <h2>Conditions</h2>
+         <div class="structured-list-viewer">
+             {% if character._conditions %}
+                 {% for condition in character._conditions %}
+                     <div class="structured-item-viewer">
+                         <h3>{{ condition.name if condition.name is defined else 'Unnamed Condition' }}</h3>
+                         {% if condition.value is defined %}<p><strong>Value:</strong> {{ condition.value }}</p>{% endif %}
+                         {% if condition.attribute is defined %}<p><strong>Attribute:</strong> {{ condition.attribute }}</p>{% endif %}
+                     </div>
+                 {% endfor %}
+             {% else %}
+                 <p>No conditions.</p>
+             {% endif %}
+         </div>
+
+
+         <h2>Inventory</h2>
+          <div class="structured-list-viewer">
+             {% if character._inventory %}
+                 {% for item in character._inventory %}
+                     <div class="structured-item-viewer">
+                         <h3>{{ item.name if item.name is defined else 'Unnamed Item' }} ({{ item.amount if item.amount is defined else 0 }})</h3>
+                         {% if item.value is defined %}<p><strong>Value:</strong> {{ item.value }}</p>{% endif %}
+                         {% if item.weight is defined %}<p><strong>Weight:</strong> {{ item.weight }}</p>{% endif %}
+                         {% if item.gold_value is defined %}<p><strong>Gold Value:</strong> £{{ "%.2f"|format(item.gold_value) if item.gold_value is defined else 0.00 }}</p>{% endif %} {# Format Gold Value to 2 decimal places #}
+                         {% if item.type is defined %}<p><strong>Type:</strong> {{ item.type }}</p>{% endif %}
+                     </div>
+                 {% endfor %}
+             {% else %}
+                 <p>No inventory items.</p>
+             {% endif %}
+          </div>
+
+    </div>
+
+    <script>
+        // JavaScript for automatic reload when file changes
+        const characterName = "{{ character.name }}"; // Get character name from template
+        let lastModifiedTimestamp = null;
+
+        function checkFileModification() {
+            fetch(`/last_modified/${encodeURIComponent(characterName)}`) // Call the Flask route
+                .then(response => {
+                    if (!response.ok) {
+                        // Handle errors (e.g., character file deleted)
+                        console.error('Error checking file modification:', response.statusText);
+                         // If the file is gone, maybe redirect or show a message
+                         if (response.status === 404) {
+                             console.log("Character file not found, stopping polling.");
+                             clearInterval(pollingInterval); // Stop polling
+                              // Optional: Redirect to home or show a message
+                              // window.location.href = '/';
+                         }
+                        return;
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.last_modified) {
+                        const currentTimestamp = data.last_modified;
+                        // If it's the first check, just store the timestamp
+                        if (lastModifiedTimestamp === null) {
+                            lastModifiedTimestamp = currentTimestamp;
+                        } else if (currentTimestamp !== lastModifiedTimestamp) {
+                            // If timestamp has changed, reload the page
+                            console.log('Character file updated. Reloading page...');
+                            window.location.reload();
+                        }
+                         // Update timestamp after successful check
+                         lastModifiedTimestamp = currentTimestamp;
+
+                    } else if (data.error) {
+                        console.error("Server error checking file modification:", data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    // Handle network errors or other fetch issues
+                });
+        }
+
+        // Poll the server every 5 seconds (adjust interval as needed)
+        const pollingInterval = setInterval(checkFileModification, 5000); // Check every 5000 milliseconds (5 seconds)
+
+        // Optional: Stop polling when the user leaves the page
+        window.addEventListener('beforeunload', () => {
+            clearInterval(pollingInterval);
+        });
+
+    </script>
+</body>
+</html>

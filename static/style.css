@@ -1,0 +1,137 @@
+/* Basic Reset & Body Styling */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Roboto', sans-serif; /* Fallback font */
+    background-color: #2c1e15; /* Dark brown */
+    color: #e8d8c3; /* Parchment color */
+    line-height: 1.6;
+    padding: 20px;
+    background-image: url('https://www.transparenttextures.com/patterns/old-paper.png'); /* Subtle parchment texture */
+}
+
+.container {
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 30px;
+    background-color: rgba(68, 46, 35, 0.85); /* Darker semi-transparent wood/leather */
+    border: 2px solid #8a5a3a; /* Darker gold/bronze border */
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+}
+
+h1 {
+    font-family: 'MedievalSharp', cursive; /* D&D style font */
+    color: #d4af37; /* Gold color */
+    text-align: center;
+    margin-bottom: 30px;
+    text-shadow: 2px 2px 4px #000;
+}
+
+/* Form Styling */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #d4af37; /* Gold labels */
+    font-weight: bold;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #8a5a3a; /* Darker gold border */
+    border-radius: 4px;
+    background-color: #e8d8c3; /* Parchment input background */
+    color: #333; /* Dark text for readability */
+    font-size: 1rem;
+}
+
+.form-group input[type="number"] {
+   /* Ensure number inputs don't get too wide */
+   max-width: 150px;
+}
+
+
+/* Grid layout for attributes */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Responsive grid */
+    gap: 20px; /* Space between grid items */
+    margin-bottom: 20px;
+}
+
+button[type="submit"] {
+    display: block;
+    width: 100%;
+    padding: 12px 20px;
+    background-color: #8b0000; /* Dark red */
+    color: #e8d8c3; /* Parchment text */
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    font-family: 'MedievalSharp', cursive;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+button[type="submit"]:hover {
+    background-color: #a52a2a; /* Lighter red on hover */
+}
+
+/* Flash Messages Styling */
+.flashes {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 20px;
+}
+.flash {
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+}
+.flash-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+.flash-error {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+.flash-info {
+    color: #0c5460;
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+}
+
+
+/* Mobile Friendliness */
+@media (max-width: 600px) {
+    .container {
+        padding: 20px;
+    }
+    h1 {
+        font-size: 1.8rem;
+    }
+    .grid-container {
+       grid-template-columns: 1fr 1fr; /* Two columns on smaller screens */
+       gap: 15px;
+    }
+     .form-group input[type="number"] {
+        max-width: none; /* Allow number inputs to fill grid cell */
+    }
+}
+

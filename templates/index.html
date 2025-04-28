@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D&D Character Creator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>Create Your D&D Character</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flashes">
+            {% for category, message in messages %}
+              <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('create_character') }}" method="post">
+            <div class="form-group">
+                <label for="name">Character Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+
+            <div class="grid-container">
+                <div class="form-group">
+                    <label for="max_health">Max Health:</label>
+                    <input type="number" id="max_health" name="max_health" value="{{ default_values.max_health }}" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="armour_class">Armour Class:</label>
+                    <input type="number" id="armour_class" name="armour_class" value="{{ default_values.armour_class }}" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="strength">Strength:</label>
+                    <input type="number" id="strength" name="strength" value="{{ default_values.strength }}" min="1" max="30" required>
+                </div>
+                <div class="form-group">
+                    <label for="dexterity">Dexterity:</label>
+                    <input type="number" id="dexterity" name="dexterity" value="{{ default_values.dexterity }}" min="1" max="30" required>
+                </div>
+                <div class="form-group">
+                    <label for="constitution">Constitution:</label>
+                    <input type="number" id="constitution" name="constitution" value="{{ default_values.constitution }}" min="1" max="30" required>
+                </div>
+                <div class="form-group">
+                    <label for="intelligence">Intelligence:</label>
+                    <input type="number" id="intelligence" name="intelligence" value="{{ default_values.intelligence }}" min="1" max="30" required>
+                </div>
+                <div class="form-group">
+                    <label for="wisdom">Wisdom:</label>
+                    <input type="number" id="wisdom" name="wisdom" value="{{ default_values.wisdom }}" min="1" max="30" required>
+                </div>
+                <div class="form-group">
+                    <label for="charisma">Charisma:</label>
+                    <input type="number" id="charisma" name="charisma" value="{{ default_values.charisma }}" min="1" max="30" required>
+                </div>
+            </div>
+
+            <button type="submit">Create Character</button>
+        </form>
+    </div>
+</body>
+</html>

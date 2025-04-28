@@ -1,0 +1,256 @@
+/* Basic Reset and Body Styling */
+body {
+    font-family: 'Georgia', serif; /* Use a slightly more refined serif font */
+    background-color: #e0d4b6; /* Lighter parchment color */
+    color: #4a3b2d; /* Darker, more readable text color */
+    margin: 0;
+    padding: 20px;
+    line-height: 1.6;
+    /* Optional: Add a subtle background texture if you have an image */
+    /* background-image: url('parchment-texture.jpg'); */
+    /* background-repeat: repeat; */
+}
+
+.container {
+    max-width: 800px; /* Limit content width */
+    margin: 20px auto;
+    background-color: #fefbf5; /* Almost white, slightly creamy background for content */
+    padding: 25px; /* Increased padding */
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3); /* More pronounced shadow */
+    border: 3px solid #6a5a4a; /* Thicker, darker wood border */
+    border-radius: 8px; /* Slightly rounded corners */
+}
+
+h1, h2 {
+    text-align: center;
+    color: #5a4b3c; /* Dark wood color */
+    font-family: 'Cinzel Decorative', cursive; /* A decorative D&D-like font if available */
+    margin-bottom: 25px; /* Increased margin */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); /* Subtle text shadow */
+}
+
+h2 {
+    border-bottom: 2px solid #c8a98a; /* Add a line under section titles */
+    padding-bottom: 10px;
+    margin-top: 30px;
+}
+
+
+/* Character List Styling */
+.character-list {
+    list-style: none;
+    padding: 0;
+}
+
+.character-list li {
+    background-color: #e0c19f; /* Lighter parchment color */
+    margin-bottom: 12px; /* Increased margin */
+    padding: 12px; /* Increased padding */
+    border: 1px solid #c8a98a;
+    border-radius: 5px;
+    text-align: center;
+    transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+.character-list li:hover {
+    background-color: #d4b28c; /* Slightly darker on hover */
+}
+
+.character-list li a {
+    text-decoration: none;
+    color: #5a4b3c;
+    font-weight: bold;
+    display: block; /* Make the whole list item clickable */
+    font-size: 1.1em;
+}
+
+.character-list li a:hover {
+    color: #a04000; /* Darker orange/brown on hover */
+}
+
+/* Character Detail Form Styling */
+form {
+    margin-top: 20px;
+}
+
+.stat-block {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Adjusted minmax width */
+    gap: 20px; /* Increased gap */
+    margin-bottom: 30px; /* Increased margin */
+    padding: 20px; /* Increased padding */
+    border: 2px solid #c8a98a; /* Slightly thicker border */
+    background-color: #f5ebe0; /* A softer background color */
+    border-radius: 5px;
+}
+
+.ability-scores {
+     grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); /* Adjusted minmax width */
+     text-align: center;
+}
+
+.stat-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px; /* Added margin between stat groups */
+}
+
+.stat-group label {
+    font-weight: bold;
+    margin-bottom: 8px; /* Increased margin */
+    color: #5a4b3c;
+    font-size: 0.95em;
+}
+
+.stat-group input[type="text"],
+.stat-group input[type="number"],
+.stat-group textarea {
+    padding: 10px; /* Increased padding */
+    border: 1px solid #c8a98a;
+    background-color: #fff; /* White background for inputs */
+    font-size: 1em;
+    font-family: 'Georgia', serif;
+    border-radius: 4px;
+    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.1); /* Subtle inner shadow */
+    color: #333; /* Ensure input text is dark and readable */
+}
+
+.stat-group textarea {
+    min-height: 120px; /* Increased height */
+    resize: vertical; /* Allow vertical resizing */
+}
+
+button[type="submit"] {
+    display: block;
+    width: 100%;
+    padding: 12px; /* Increased padding */
+    background-color: #a04000; /* Darker orange/brown button */
+    color: white;
+    border: none;
+    font-size: 1.3em;
+    cursor: pointer;
+    margin-top: 30px; /* Increased margin */
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); /* Button shadow */
+}
+
+button[type="submit"]:hover {
+    background-color: #8b3b00; /* Even darker on hover */
+}
+
+/* Inventory Section Styling (from previous update, adjusted) */
+.inventory-list {
+    margin-top: 20px;
+}
+
+.inventory-item {
+    border: 1px solid #c8a98a;
+    padding: 15px; /* Increased padding */
+    margin-bottom: 20px; /* Increased margin */
+    background-color: #f5ebe0; /* Match the softer background */
+    border-radius: 5px;
+}
+
+.inventory-item .stat-group {
+    flex-direction: row; /* Display item attributes in a row */
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.inventory-item .stat-group label {
+    margin-right: 15px; /* Increased margin */
+    min-width: 90px; /* Give labels a minimum width for alignment */
+     font-size: 0.95em;
+}
+
+ .inventory-item .stat-group input[type="text"],
+ .inventory-item .stat-group input[type="number"] {
+    flex-grow: 1; /* Allow inputs to take available space */
+     padding: 8px; /* Slightly smaller padding for item fields */
+     font-size: 0.95em;
+ }
+
+.inventory-item h3 {
+    margin-top: 0;
+    color: #5a4b3c;
+    border-bottom: 1px solid #c8a98a;
+    padding-bottom: 8px;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+}
+
+/* Note about adding characters */
+.add-character-note {
+    text-align: center;
+    margin-top: 30px;
+    font-style: italic;
+    color: #666;
+    font-size: 0.9em;
+}
+
+/* Back link styling */
+p a {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    color: #5a4b3c;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+p a:hover {
+    text-decoration: underline;
+    color: #a04000;
+}
+
+
+/* Mobile Responsiveness */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        padding: 15px;
+        margin: 10px auto;
+    }
+
+    .stat-block {
+        grid-template-columns: 1fr; /* Stack stats vertically on small screens */
+        gap: 15px;
+        padding: 15px;
+    }
+
+     .ability-scores {
+         grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); /* Adjust ability scores grid */
+         gap: 10px;
+    }
+
+    .stat-group {
+        margin-bottom: 10px;
+    }
+
+    .inventory-item .stat-group {
+         flex-direction: column; /* Stack item attributes vertically on small screens */
+         align-items: flex-start;
+         margin-bottom: 10px;
+    }
+
+     .inventory-item .stat-group label {
+         margin-right: 0;
+         margin-bottom: 5px;
+     }
+
+     .inventory-item {
+         padding: 10px;
+         margin-bottom: 15px;
+     }
+
+    button[type="submit"] {
+        font-size: 1.1em;
+        padding: 10px;
+        margin-top: 20px;
+    }
+}
+

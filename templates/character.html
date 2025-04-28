@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ character.name }} - DM Tools</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dm.css') }}">
+    <style>
+        /* Add some styling for structured items (both inventory and conditions) */
+        .structured-item {
+            border: 1px solid #c8a98a;
+            padding: 10px;
+            margin-bottom: 15px;
+            background-color: #f5ebe0; /* Match the softer background */
+            border-radius: 5px;
+        }
+
+        .structured-item .stat-group {
+            display: flex; /* Use flexbox for layout */
+            flex-direction: row; /* Arrange fields in a row */
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 10px; /* Space between items in the row */
+        }
+
+         @media (max-width: 600px) {
+             .structured-item .stat-group {
+                 flex-direction: column; /* Stack vertically on small screens */
+                 align-items: flex-start;
+             }
+             .structured-item .stat-group label {
+                 margin-bottom: 5px;
+             }
+         }
+
+
+        .structured-item .stat-group label {
+            font-weight: bold;
+            margin-right: 10px;
+            min-width: 80px; /* Give labels a minimum width for alignment */
+            font-size: 0.95em;
+            color: #5a4b3c;
+        }
+
+         .structured-item .stat-group input[type="text"],
+         .structured-item .stat-group input[type="number"] {
+            flex-grow: 1; /* Allow inputs to take available space */
+             padding: 8px; /* Slightly smaller padding for item fields */
+             font-size: 0.95em;
+             border: 1px solid #c8a98a;
+            background-color: #fff;
+            border-radius: 4px;
+             box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.1);
+             color: #333;
+         }
+
+
+        .structured-item h3 {
+            margin-top: 0;
+            color: #5a4b3c;
+            border-bottom: 1px solid #c8a98a;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        /* Styling for the lists of structured items */
+        .structured-list {
+            margin-top: 20px;
+        }
+
+
+         /* Styling for the Add Item Buttons */
+         .add-item-button {
+            display: inline-block; /* Use inline-block to allow multiple buttons or better spacing */
+            width: auto;
+            padding: 8px 15px; /* Adjusted padding */
+            background-color: #4CAF50; /* Green color */
+            color: white;
+            border: none;
+            font-size: 1em; /* Kept font size same as other inputs */
+            cursor: pointer;
+            margin-top: 10px;
+            margin-right: 10px; /* Space between buttons if multiple */
+            border-radius: 3px;
+            transition: background-color 0.3s ease;
+        }
+
+        .add-item-button:hover {
+            background-color: #45a049;
+        }
+
+         /* Style for the main Save Changes button */
+         button[type="submit"]:not(.add-item-button) {
+             /* Ensure the main submit button retains its full width and style */
+             display: block;
+             width: 100%;
+             padding: 12px;
+             background-color: #a04000;
+             color: white;
+             border: none;
+             font-size: 1.3em;
+             cursor: pointer;
+             margin-top: 30px;
+             border-radius: 5px;
+             transition: background-color 0.3s ease;
+             box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+         }
+          button[type="submit"]:not(.add-item-button):hover {
+               background-color: #8b3b00;
+          }
+
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ character.name }}</h1>
+
+        <form method="POST">
+            <div class="stat-block">
+                <div class="stat-group">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" value="{{ character.name }}">
+                </div>
+
+                <div class="stat-group">
+                    <label for="max_health">Max Health:</label>
+                    <input type="number" id="max_health" name="max_health" value="{{ character.max_health }}">
+                </div>
+
+                <div class="stat-group">
+                    <label for="_current_health">Current Health:</label>
+                    <input type="number" id="_current_health" name="_current_health" value="{{ character._current_health }}">
+                </div>
+
+                 <div class="stat-group">
+                    <label for="armour_class">Armour Class:</label>
+                    <input type="number" id="armour_class" name="armour_class" value="{{ character.armour_class }}">
+                </div>
+            </div>
+
+            <h2>Abilities</h2>
+             <div class="stat-block ability-scores">
+                <div class="stat-group">
+                    <label for="strength">STR:</label>
+                    <input type="number" id="strength" name="strength" value="{{ character.strength }}">
+                </div>
+                <div class="stat-group">
+                    <label for="dexterity">DEX:</label>
+                    <input type="number" id="dexterity" name="dexterity" value="{{ character.dexterity }}">
+                </div>
+                <div class="stat-group">
+                    <label for="constitution">CON:</label>
+                    <input type="number" id="constitution" name="constitution" value="{{ character.constitution }}">
+                </div>
+                <div class="stat-group">
+                    <label for="intelligence">INT:</label>
+                    <input type="number" id="intelligence" name="intelligence" value="{{ character.intelligence }}">
+                </div>
+                <div class="stat-group">
+                    <label for="wisdom">WIS:</label>
+                    <input type="number" id="wisdom" name="wisdom" value="{{ character.wisdom }}">
+                </div>
+                 <div class="stat-group">
+                    <label for="charisma">CHA:</label>
+                    <input type="number" id="charisma" name="charisma" value="{{ character.charisma }}">
+                </div>
+            </div>
+
+            <h2>Conditions</h2>
+            {# Use a class for structured lists #}
+             <div class="structured-list">
+                {% if character._conditions %}
+                    {# Loop through structured conditions #}
+                    {% for condition in character._conditions %}
+                        {# Use a class for structured items #}
+                        <div class="structured-item">
+                            {# Use an index in the input name to identify the item #}
+                            <h3>Condition {{ loop.index }}</h3>
+                            <div class="stat-group">
+                                <label for="condition-{{ loop.index0 }}-name">Name:</label>
+                                <input type="text" id="condition-{{ loop.index0 }}-name" name="condition-{{ loop.index0 }}-name" value="{{ condition.name if condition.name is defined else '' }}">
+                            </div>
+                            <div class="stat-group">
+                                <label for="condition-{{ loop.index0 }}-value">Value:</label>
+                                <input type="number" id="condition-{{ loop.index0 }}-value" name="condition-{{ loop.index0 }}-value" value="{{ condition.value if condition.value is defined else 0 }}" step="any"> {# Use step="any" for potential floats #}
+                            </div>
+                             <div class="stat-group">
+                                <label for="condition-{{ loop.index0 }}-attribute">Attribute:</label>
+                                <input type="text" id="condition-{{ loop.index0 }}-attribute" name="condition-{{ loop.index0 }}-attribute" value="{{ condition.attribute if condition.attribute is defined else '' }}">
+                            </div>
+                            {# Add remove button later if needed #}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No conditions.</p>
+                {% endif %}
+                 {# Add New Condition Button #}
+                 <button type="submit" name="add_condition" value="true" class="add-item-button">Add New Condition</button>
+             </div>
+
+
+             <h2>Inventory</h2>
+             <div class="structured-list"> {# Use the same class for structured lists #}
+                {% if character._inventory %}
+                    {% for item in character._inventory %}
+                        {# Use the same class for structured items #}
+                        <div class="structured-item">
+                            {# Use an index in the input name to identify the item #}
+                            <h3>Item {{ loop.index }}</h3>
+                            <div class="stat-group">
+                                <label for="inventory-{{ loop.index0 }}-name">Name:</label>
+                                <input type="text" id="inventory-{{ loop.index0 }}-name" name="inventory-{{ loop.index0 }}-name" value="{{ item.name if item.name is defined else '' }}">
+                            </div>
+                            <div class="stat-group">
+                                <label for="inventory-{{ loop.index0 }}-amount">Amount:</label>
+                                <input type="number" id="inventory-{{ loop.index0 }}-amount" name="inventory-{{ loop.index0 }}-amount" value="{{ item.amount if item.amount is defined else 0 }}"> {# Default to 0 for new empty items #}
+                            </div>
+                             <div class="stat-group">
+                                <label for="inventory-{{ loop.index0 }}-value">Value:</label>
+                                <input type="number" id="inventory-{{ loop.index0 }}-value" name="inventory-{{ loop.index0 }}-value" value="{{ item.value if item.value is defined else 0.0 }}" step="0.01">
+                            </div>
+                             <div class="stat-group">
+                                <label for="inventory-{{ loop.index0 }}-weight">Weight:</label>
+                                <input type="number" id="inventory-{{ loop.index0 }}-weight" name="inventory-{{ loop.index0 }}-weight" value="{{ item.weight if item.weight is defined else 0.0 }}" step="0.01">
+                            </div>
+                            <div class="stat-group">
+                                <label for="inventory-{{ loop.index0 }}-gold_value">Gold Value:</label>
+                                <input type="number" id="inventory-{{ loop.index0 }}-gold_value" name="inventory-{{ loop.index0 }}-gold_value" value="{{ item.gold_value if item.gold_value is defined else 0.0 }}" step="0.01">
+                            </div>
+                             <div class="stat-group">
+                                <label for="inventory-{{ loop.index0 }}-type">Type:</label>
+                                <input type="text" id="inventory-{{ loop.index0 }}-type" name="inventory-{{ loop.index0 }}-type" value="{{ item.type if item.type is defined else '' }}">
+                            </div>
+                            {# Add remove button later if needed #}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No inventory items.</p>
+                {% endif %}
+                 {# Add New Inventory Item Button #}
+                 <button type="submit" name="add_inventory" value="true" class="add-item-button">Add New Inventory Item</button>
+             </div>
+
+
+            <button type="submit">Save Changes</button>
+        </form>
+
+        <p><a href="{{ url_for('index') }}">Back to Character List</a></p>
+    </div>
+</body>
+</html>

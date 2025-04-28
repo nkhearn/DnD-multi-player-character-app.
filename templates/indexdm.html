@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DM Tools - Characters</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dm.css') }}">
+    <style>
+        /* Style for the Create New Character button form */
+        .create-character-form {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .create-character-form button {
+             padding: 10px 20px;
+             background-color: #008CBA; /* Blue color */
+             color: white;
+             border: none;
+             font-size: 1.1em;
+             cursor: pointer;
+             border-radius: 5px;
+             transition: background-color 0.3s ease;
+        }
+
+        .create-character-form button:hover {
+            background-color: #005f7f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Adventurers</h1>
+        {% if characters %}
+            <ul class="character-list">
+                {% for character_name in characters %}
+                    <li><a href="{{ url_for('view_character', character_name=character_name) }}">{{ character_name }}</a></li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No characters found. Create one below!</p>
+        {% endif %}
+
+        {# Form to create a new character #}
+        <div class="create-character-form">
+             <form action="{{ url_for('create_character') }}" method="POST">
+                 <button type="submit">Create New Character</button>
+             </form>
+        </div>
+
+         <p class="add-character-note">To add existing character files manually, place .chr files in the 'characters' directory following the filename convention (lowercase, spaces replaced with underscores).</p>
+    </div>
+</body>
+</html>
