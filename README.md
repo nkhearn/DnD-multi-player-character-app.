@@ -29,6 +29,19 @@ This project is divided into three main parts:
 
 ## Setup
 
+### Dependencies
+
+This project relies on the following Python packages:
+
+* **Flask**: (External) A lightweight web server framework used to build both the DM Management (`app.py`) and Character Viewer (`viewer_app.py`) web applications.
+* **Flask-HTTPAuth**: (External) An extension for Flask that provides basic and digest HTTP authentication, used here to protect the DM Management interface.
+* **Werkzeug**: (External) A comprehensive WSGI web application library. Specifically, `werkzeug.security` is used here for securely hashing and checking passwords for the basic authentication in `app.py`. (Note: Flask includes Werkzeug, but you import `generate_password_hash` and `check_password_hash` directly from it).
+* **json**: (Standard Library) Used by the `dnd_character` class (`dnd.py`) to encode and decode character data when saving and loading to/from `.chr` files.
+* **os**: (Standard Library) Provides a way of using operating system dependent functionality, such as interacting with the filesystem (creating directories, listing files, checking file existence) in all three scripts.
+* **time**: (Standard Library) Used in `viewer_app.py` to get the last modification timestamp of character files for the client-side polling mechanism.
+
+The external dependencies (`Flask`, `Flask-HTTPAuth`, `Werkzeug`) need to be installed using `pip` as described in the [Prerequisites](#Prerequisites) section. The standard library modules (`json`, `os`, `time`) are included with Python and do not require separate installation.
+
 ### Prerequisites
 
 * Python 3.6 or higher
