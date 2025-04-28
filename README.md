@@ -38,10 +38,9 @@ This project is divided into three main parts:
 
 1.  Clone this repository:
     ```bash
-    git clone <repository_url>
-    cd <repository_directory>
+    git clone https://github.com/nkhearn/DnD-multi-player-character-app..git
+    cd DnD-multi-player-character-app.
     ```
-    (Replace `<repository_url>` and `<repository_directory>` with your actual repository details)
 
 2.  Install the required Python packages:
     ```bash
