@@ -12,7 +12,7 @@
     "_conditions": [
         {
             "name": "bleeding",
-            "value": -1.0,
+            "value": -1,
             "attribute": "health"
         }
     ],
@@ -32,6 +32,14 @@
             "weight": 5.0,
             "gold_value": 2.0,
             "type": "Utility"
+        },
+        {
+            "name": "Leather Armor",
+            "amount": 1,
+            "value": 50.0,
+            "weight": 15.0,
+            "gold_value": 10.0,
+            "type": "Armor"
         }
     ]
 }

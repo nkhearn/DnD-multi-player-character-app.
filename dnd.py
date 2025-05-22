@@ -42,7 +42,6 @@ class dnd_character:
         # [{'name': 'Healing Potion', 'amount': 2, 'value': 50, 'weight': 0.5, 'gold_value': 10, 'type': 'Consumable'}]
         self._inventory = []
         self._messages = [] # List to store messages
-        #return self
 
     def health(self, adjustment=None):
         """
