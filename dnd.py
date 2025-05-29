@@ -1,5 +1,7 @@
 import json
 import os
+import sqlite3
+import database_setup # For creating tables in example
 
 class dnd_character:
     """
@@ -10,7 +12,7 @@ class dnd_character:
 
     def __init__(self, name="Unnamed Character", max_health=100, armour_class=10,
                  strength=10, dexterity=10, constitution=10,
-                 intelligence=10, wisdom=10, charisma=10):
+                 intelligence=10, wisdom=10, charisma=10, db_path="dnd_characters.db"):
         """
         Initializes a new D&D character.
 
@@ -24,8 +26,10 @@ class dnd_character:
             intelligence (int): The character's Intelligence score.
             wisdom (int): The character's Wisdom score.
             charisma (int): The character's Charisma score.
+            db_path (str): Path to the SQLite database file.
         """
         self.name = name
+        self.db_path = db_path
         self.max_health = max_health
         self._current_health = max_health  # Use a protected attribute for current health
         self.armour_class = armour_class
@@ -43,6 +47,9 @@ class dnd_character:
         self._inventory = []
         self._messages = [] # List to store messages
         #return self
+
+    # --- Health, Condition, Item methods remain largely the same, operating on instance variables ---
+    # --- These will be persisted by save() and populated by load() ---
 
     def health(self, adjustment=None):
         """
@@ -308,121 +315,118 @@ class dnd_character:
 
         return filtered_inventory, self._messages
 
-
-    def save(self, directory_path="character_saves"):
+    def save(self):
         """
         Saves the character's current state (attributes, conditions, inventory)
-        to a JSON file in the specified directory.
-
-        The filename will be "{character_name}.chr".
-
-        Args:
-            directory_path (str): The path to the directory where the file
-                                  will be saved. Defaults to "character_saves".
+        to the SQLite database specified by self.db_path.
 
         Returns:
             tuple: A tuple containing a boolean indicating success (True) or failure (False)
                    and a list of messages.
         """
-        self._messages = [] # Clear messages for this call
-
-        # Ensure the directory exists
+        self._messages = []
         try:
-            os.makedirs(directory_path, exist_ok=True)
-            self._messages.append(f"Ensured directory '{directory_path}' exists.")
-        except OSError as e:
-            self._messages.append(f"Error creating directory '{directory_path}': {e}")
-            return False, self._messages
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
 
+                # Save character attributes
+                cursor.execute("""
+                    INSERT OR REPLACE INTO characters (
+                        name, max_health, current_health, armour_class,
+                        strength, dexterity, constitution, intelligence, wisdom, charisma
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    self.name, self.max_health, self._current_health, self.armour_class,
+                    self.strength, self.dexterity, self.constitution,
+                    self.intelligence, self.wisdom, self.charisma
+                ))
+                self._messages.append(f"Character attributes for '{self.name}' saved to database.")
 
-        # Construct the full file path
-        filename = f"{self.name.replace(' ', '_').lower()}.chr" # Create a safe filename
-        file_path = os.path.join(directory_path, filename)
+                # Clear existing conditions for this character
+                cursor.execute("DELETE FROM conditions WHERE character_name = ?", (self.name,))
+                # Save current conditions
+                for condition in self._conditions:
+                    cursor.execute("""
+                        INSERT INTO conditions (character_name, name, value, attribute)
+                        VALUES (?, ?, ?, ?)
+                    """, (self.name, condition['name'], condition.get('value'), condition.get('attribute')))
+                self._messages.append(f"Conditions for '{self.name}' saved to database.")
 
-        # Prepare the data to be saved
-        character_data = {
-            "name": self.name,
-            "max_health": self.max_health,
-            "_current_health": self._current_health,
-            "armour_class": self.armour_class,
-            "strength": self.strength,
-            "dexterity": self.dexterity,
-            "constitution": self.constitution,
-            "intelligence": self.intelligence,
-            "wisdom": self.wisdom,
-            "charisma": self.charisma,
-            "_conditions": self._conditions,
-            "_inventory": self._inventory # Include inventory
-        }
+                # Clear existing inventory for this character
+                cursor.execute("DELETE FROM inventory WHERE character_name = ?", (self.name,))
+                # Save current inventory
+                for item in self._inventory:
+                    cursor.execute("""
+                        INSERT INTO inventory (character_name, name, amount, value, weight, gold_value, type)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """, (
+                        self.name, item['name'], item['amount'], item['value'],
+                        item['weight'], item['gold_value'], item['type']
+                    ))
+                self._messages.append(f"Inventory for '{self.name}' saved to database.")
 
-        try:
-            with open(file_path, 'w') as f:
-                json.dump(character_data, f, indent=4) # Use indent for readability
-            self._messages.append(f"Character '{self.name}' saved successfully to '{file_path}'")
-            return True, self._messages
-        except IOError as e:
-            self._messages.append(f"Error saving character '{self.name}': {e}")
+                conn.commit()
+                self._messages.append(f"Character '{self.name}' saved successfully to database '{self.db_path}'.")
+                return True, self._messages
+        except sqlite3.Error as e:
+            self._messages.append(f"Database error while saving '{self.name}': {e}")
             return False, self._messages
         except Exception as e:
             self._messages.append(f"An unexpected error occurred while saving '{self.name}': {e}")
             return False, self._messages
 
-    def load(self, directory_path="characters"):
+    def load(self):
         """
-        Loads the character's state from a JSON file in the specified directory.
-
-        The filename is expected to be "{character_name}.chr".
-
-        Args:
-            directory_path (str): The path to the directory where the file
-                                  is located. Defaults to "character_saves".
+        Loads the character's state from the SQLite database specified by self.db_path.
+        The character's name (self.name) is used to find the record.
 
         Returns:
             tuple: A tuple containing a boolean indicating success (True) or failure (False)
                    and a list of messages.
         """
-        self._messages = [] # Clear messages for this call
-
-        # Construct the full file path
-        filename = f"{self.name.replace(' ', '_').lower()}.chr" # Match filename format
-        file_path = os.path.join(directory_path, filename)
-
-        if not os.path.exists(file_path):
-            self._messages.append(f"Save file not found for character '{self.name}' at '{file_path}'")
-            return False, self._messages
-
+        self._messages = []
         try:
-            with open(file_path, 'r') as f:
-                character_data = json.load(f)
+            with sqlite3.connect(self.db_path) as conn:
+                conn.row_factory = sqlite3.Row # Access columns by name
+                cursor = conn.cursor()
 
-            # Load the data into the current character object
-            self.name = character_data.get("name", self.name) # Use .get() with default to be safe
-            self.max_health = character_data.get("max_health", self.max_health)
-            self._current_health = character_data.get("_current_health", self._current_health)
-            self.armour_class = character_data.get("armour_class", self.armour_class)
-            self.strength = character_data.get("strength", self.strength)
-            self.dexterity = character_data.get("dexterity", self.dexterity)
-            self.constitution = character_data.get("constitution", self.constitution)
-            self.intelligence = character_data.get("intelligence", self.intelligence)
-            self.wisdom = character_data.get("wisdom", self.wisdom)
-            self.charisma = character_data.get("charisma", self.charisma)
-            self._conditions = character_data.get("_conditions", []) # Default to empty list if not found
-            self._inventory = character_data.get("_inventory", []) # Default to empty list if not found
+                # Load character attributes
+                cursor.execute("SELECT * FROM characters WHERE name = ?", (self.name,))
+                char_data = cursor.fetchone()
 
-            self._messages.append(f"Character '{self.name}' loaded successfully from '{file_path}'")
-            return True, self._messages
+                if not char_data:
+                    self._messages.append(f"Character '{self.name}' not found in database '{self.db_path}'.")
+                    return False, self._messages
 
-        except json.JSONDecodeError:
-            self._messages.append(f"Error decoding JSON from file '{file_path}'. File might be corrupted.")
-            return False, self._messages
-        except FileNotFoundError:
-             # This case should be caught by os.path.exists, but included for robustness
-            self._messages.append(f"Save file not found for character '{self.name}' at '{file_path}'")
+                self.max_health = char_data["max_health"]
+                self._current_health = char_data["current_health"]
+                self.armour_class = char_data["armour_class"]
+                self.strength = char_data["strength"]
+                self.dexterity = char_data["dexterity"]
+                self.constitution = char_data["constitution"]
+                self.intelligence = char_data["intelligence"]
+                self.wisdom = char_data["wisdom"]
+                self.charisma = char_data["charisma"]
+                self._messages.append(f"Character attributes for '{self.name}' loaded from database.")
+
+                # Load conditions
+                cursor.execute("SELECT name, value, attribute FROM conditions WHERE character_name = ?", (self.name,))
+                self._conditions = [{'name': row['name'], 'value': row['value'], 'attribute': row['attribute']} for row in cursor.fetchall()]
+                self._messages.append(f"Conditions for '{self.name}' loaded from database.")
+
+                # Load inventory
+                cursor.execute("SELECT name, amount, value, weight, gold_value, type FROM inventory WHERE character_name = ?", (self.name,))
+                self._inventory = [dict(row) for row in cursor.fetchall()] # Convert rows to dicts
+                self._messages.append(f"Inventory for '{self.name}' loaded from database.")
+
+                self._messages.append(f"Character '{self.name}' loaded successfully from database '{self.db_path}'.")
+                return True, self._messages
+        except sqlite3.Error as e:
+            self._messages.append(f"Database error while loading '{self.name}': {e}")
             return False, self._messages
         except Exception as e:
             self._messages.append(f"An unexpected error occurred while loading '{self.name}': {e}")
             return False, self._messages
-
 
 # Helper function to display results and messages
 def display_result_and_messages(result, messages):
@@ -447,10 +451,19 @@ def display_result_and_messages(result, messages):
 
 # Example Usage:
 if __name__ == "__main__":
+    # Ensure database and tables are created before running examples
+    DB_FILE = "dnd_characters.db" # Make sure this matches database_setup.py and dnd_character default
+    if os.path.exists(DB_FILE):
+        os.remove(DB_FILE) # Start with a fresh DB for the example
+        print(f"Removed existing database '{DB_FILE}' for a clean example run.")
+    database_setup.create_tables()
+    print("-" * 20)
+
     # --- Create a character and add items ---
     print("--- Creating Character and Adding Items ---")
-    my_character = dnd_character(name="Zaltar the Merchant", max_health=70)
-    print(my_character.name)
+    # Note: db_path can be specified, or defaults to "dnd_characters.db"
+    my_character = dnd_character(name="Zaltar the Merchant", max_health=70, db_path=DB_FILE)
+    print(f"Created character: {my_character.name} (using DB: {my_character.db_path})")
 
     inv_result, inv_messages = my_character.add_item("Healing Potion", 3, 50.0, 0.5, 10.0, "Consumable")
     display_result_and_messages(inv_result, inv_messages)
@@ -519,37 +532,50 @@ if __name__ == "__main__":
 
     # --- Demonstrate Saving with Inventory ---
     print("--- Demonstrating Save with Inventory ---")
-    save_directory = "characters"
-    save_success, save_messages = my_character.save(save_directory)
+    save_success, save_messages = my_character.save() # No directory_path needed
     display_result_and_messages(f"Save Successful: {save_success}", save_messages)
 
     print("\n" + "="*30 + "\n") # Separator
 
     # --- Demonstrate Loading with Inventory ---
     print("--- Demonstrating Load with Inventory ---")
-    loaded_character = dnd_character(name="Zaltar the Merchant") # Name must match for loading
+    # Create a new character object instance for loading.
+    # Name must match the character to be loaded from the DB.
+    # db_path must also match the one used for saving.
+    loaded_character = dnd_character(name="Zaltar the Merchant", db_path=DB_FILE)
 
-    print(f"New character object '{loaded_character.name}' before loading:")
-    initial_inv, _ = loaded_character.list_inventory()
-    print(f"  Inventory: {initial_inv}") # Should be empty
+    print(f"New character object '{loaded_character.name}' (DB: {loaded_character.db_path}) before loading:")
+    initial_inv, _ = loaded_character.list_inventory() # Should be empty
+    initial_health, _ = loaded_character.health()
+    print(f"  Initial Inventory: {initial_inv}")
+    print(f"  Initial Health: {initial_health}")
+    print(f"  Initial Conditions: {loaded_character._conditions}")
     print("-" * 20)
 
-    load_success, load_messages = loaded_character.load(save_directory)
+    load_success, load_messages = loaded_character.load() # No directory_path needed
     display_result_and_messages(f"Load Successful: {load_success}", load_messages)
 
     if load_success:
         print(f"Character '{loaded_character.name}' after loading:")
         loaded_inv, _ = loaded_character.list_inventory()
-        display_result_and_messages(loaded_inv, ["Loaded Inventory:"]) # Use a custom message for clarity
+        loaded_health, _ = loaded_character.health()
+        display_result_and_messages(loaded_inv, ["Loaded Inventory:"])
+        print(f"  Loaded Health: {loaded_health}")
+        print(f"  Loaded Conditions: {loaded_character._conditions}")
+        print(f"  Loaded Strength: {loaded_character.strength}")
+
 
     print("\n" + "="*30 + "\n") # Separator
 
-    # Clean up the created save file and directory (optional)
-    # import shutil
-    # try:
-    #     shutil.rmtree(save_directory)
-    #     print(f"Cleaned up directory '{save_directory}'")
-    # except OSError as e:
-    #     print(f"Error cleaning up directory {save_directory}: {e}")
+    # --- Test loading a non-existent character ---
+    print("--- Test Loading Non-Existent Character ---")
+    non_existent_char = dnd_character(name="Ghostly Figure", db_path=DB_FILE)
+    load_fail_success, load_fail_messages = non_existent_char.load()
+    display_result_and_messages(f"Load Attempt Result for Non-Existent: {load_fail_success}", load_fail_messages)
+
+    # Optional: Clean up the database file after the example run
+    # if os.path.exists(DB_FILE):
+    #     os.remove(DB_FILE)
+    #     print(f"Cleaned up database '{DB_FILE}' after example run.")
 
 

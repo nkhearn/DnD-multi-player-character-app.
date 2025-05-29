@@ -130,60 +130,6 @@
 
     </div>
 
-    <script>
-        // JavaScript for automatic reload when file changes
-        const characterName = "{{ character.name }}"; // Get character name from template
-        let lastModifiedTimestamp = null;
-
-        function checkFileModification() {
-            fetch(`/last_modified/${encodeURIComponent(characterName)}`) // Call the Flask route
-                .then(response => {
-                    if (!response.ok) {
-                        // Handle errors (e.g., character file deleted)
-                        console.error('Error checking file modification:', response.statusText);
-                         // If the file is gone, maybe redirect or show a message
-                         if (response.status === 404) {
-                             console.log("Character file not found, stopping polling.");
-                             clearInterval(pollingInterval); // Stop polling
-                              // Optional: Redirect to home or show a message
-                              // window.location.href = '/';
-                         }
-                        return;
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.last_modified) {
-                        const currentTimestamp = data.last_modified;
-                        // If it's the first check, just store the timestamp
-                        if (lastModifiedTimestamp === null) {
-                            lastModifiedTimestamp = currentTimestamp;
-                        } else if (currentTimestamp !== lastModifiedTimestamp) {
-                            // If timestamp has changed, reload the page
-                            console.log('Character file updated. Reloading page...');
-                            window.location.reload();
-                        }
-                         // Update timestamp after successful check
-                         lastModifiedTimestamp = currentTimestamp;
-
-                    } else if (data.error) {
-                        console.error("Server error checking file modification:", data.error);
-                    }
-                })
-                .catch(error => {
-                    console.error('Fetch error:', error);
-                    // Handle network errors or other fetch issues
-                });
-        }
-
-        // Poll the server every 5 seconds (adjust interval as needed)
-        const pollingInterval = setInterval(checkFileModification, 5000); // Check every 5000 milliseconds (5 seconds)
-
-        // Optional: Stop polling when the user leaves the page
-        window.addEventListener('beforeunload', () => {
-            clearInterval(pollingInterval);
-        });
-
-    </script>
+    <!-- Removed client-side polling JavaScript -->
 </body>
 </html>
