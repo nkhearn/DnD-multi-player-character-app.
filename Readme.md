@@ -44,8 +44,8 @@ Follow these steps to set up and run the D&D Character Management System:
 
 2.  **Clone the Repository (if applicable):**
     ```bash
-    git clone <repository_url>
-    cd <repository_directory>
+    git clone https://github.com/nkhearn/DnD-multi-player-character-app..git
+    cd DnD-multi-player-character-app.
     ```
 
 3.  **Create a Virtual Environment (Recommended):**
@@ -111,7 +111,6 @@ This project provides a solid foundation for D&D character management. Here are 
 
 *   **More Robust Authentication:** Replace the hardcoded basic authentication with a more secure system (e.g., Flask-Login, OAuth, database-backed user accounts).
 *   **Database Integration:** Instead of storing characters in individual JSON files, use a database (e.g., SQLite, PostgreSQL, MongoDB) for more efficient data management, querying, and scalability.
-*   **User Accounts for DMs:** Allow multiple DMs to create accounts and manage their own sets of characters.
 *   **Campaign Management:** Add features to group characters into campaigns.
 *   **Dice Rolling Functionality:** Integrate a dice roller into the application.
 *   **Spells and Abilities:** Add dedicated sections for managing character spells, special abilities, and class features.
@@ -119,14 +118,3 @@ This project provides a solid foundation for D&D character management. Here are 
 *   **Improved UI/UX:** Enhance the user interface for better usability and visual appeal.
 *   **API for Third-Party Integrations:** Develop an API to allow other tools or services to interact with the character data.
 *   **Export/Import Characters:** Allow characters to be exported in different formats (e.g., PDF, plain text) or imported from other systems.
-
-## License
-
-This project is currently not licensed.
-
-It is recommended to add an open-source license to define how others can use, modify, and distribute the code. A common choice for projects like this is the [MIT License](https://opensource.org/licenses/MIT).
-
-To add a license:
-1.  Create a file named `LICENSE` in the root of the project.
-2.  Copy the text of your chosen license (e.g., the MIT License template) into this file.
-3.  Update this section in the `Readme.md` to reflect the chosen license (e.g., "This project is licensed under the MIT License - see the LICENSE file for details.").
