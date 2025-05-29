@@ -1,7 +1,7 @@
 {
     "name": "BlubbaDaMoo",
     "max_health": 100,
-    "_current_health": 80,
+    "_current_health": 89,
     "armour_class": 16,
     "strength": 14,
     "dexterity": 12,
@@ -10,5 +10,14 @@
     "wisdom": 10,
     "charisma": 15,
     "_conditions": [],
-    "_inventory": []
+    "_inventory": [
+        {
+            "name": "Flask",
+            "amount": 1,
+            "value": 0.0,
+            "weight": 0.0,
+            "gold_value": 0.0,
+            "type": "Container"
+        }
+    ]
 }

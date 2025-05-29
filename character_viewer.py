@@ -68,4 +68,4 @@ if __name__ == '__main__':
     # Run the app on port 5001
     # debug=True enables auto-reloading of the server when code changes,
     # but the client-side polling handles data file changes.
-    app.run(debug=True, port=5001, threaded=True)
+    app.run(debug=True, port=5001, threaded=True, host="0.0.0.0")

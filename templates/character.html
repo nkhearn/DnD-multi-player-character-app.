@@ -249,5 +249,14 @@
 
         <p><a href="{{ url_for('index') }}">Back to Character List</a></p>
     </div>
+    {# Add QR Code at the bottom #}
+    <div style="text-align: center; margin-top: 30px; padding: 20px; background-color: #f8f8f8; border-top: 1px solid #ddd;">
+        <h3>Scan to share this page</h3>
+        {% if qr_image_url %}
+            <img src="{{ qr_image_url }}" alt="QR Code for this page URL" style="width: 120px; height: 120px; border: 1px solid #ccc; padding: 5px; background-color: white;">
+        {% else %}
+            <p>QR code unavailable.</p>
+        {% endif %}
+    </div>
 </body>
 </html>

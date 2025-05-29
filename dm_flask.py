@@ -3,6 +3,14 @@ from flask_httpauth import HTTPBasicAuth # Import the authentication library
 from werkzeug.security import generate_password_hash, check_password_hash # For password hashing
 import os
 import json
+# qr code imports
+import qrcode
+import io
+import base64
+from urllib.parse import urlparse
+from PIL import Image
+# end qr
+
 # Assuming the provided class is saved in a file named dnd_character.py
 from dnd import dnd_character
 
@@ -18,6 +26,49 @@ if not os.path.exists(static_dir):
     os.makedirs(static_dir)
 if not os.path.exists(character_dir):
     os.makedirs(character_dir)
+
+def generate_qr_code_image(url_data: str) -> Image.Image:
+    """
+    Generates a QR code image for the given URL data.
+
+    Args:
+        url_data: The string data (URL) to encode in the QR code.
+
+    Returns:
+        A Pillow Image object representing the QR code.
+    """
+    # Create QR code instance
+    qr = qrcode.QRCode(
+        version=1,  # Controls the size of the QR code (1 to 40)
+        error_correction=qrcode.constants.ERROR_CORRECT_L, # About 7% or fewer errors can be corrected
+        box_size=10, # How many pixels each box of the QR code is
+        border=4, # How many boxes thick the border should be
+    )
+
+    # Add the URL data
+    qr.add_data(url_data)
+    qr.make(fit=True)  # Compile the data into a QR code array
+
+    # Create an image from the QR code array
+    img = qr.make_image(fill_color="black", back_color="white")
+
+    return img
+
+def image_to_base64_data_url(image: Image.Image) -> str:
+    """
+    Converts a Pillow Image object to a base64 encoded data URL (PNG format).
+
+    Args:
+        image: The Pillow Image object.
+
+    Returns:
+        A string representing the base64 data URL.
+    """
+    buffer = io.BytesIO()
+    image.save(buffer, format="PNG")
+    img_str = base64.b64encode(buffer.getvalue()).decode()
+    return f"data:image/png;base64,{img_str}"
+
 
 
 app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
@@ -275,11 +326,26 @@ def view_character(character_name):
     # For GET request, render the character details using the loaded character object
     # Pass the character object's attributes directly to the template
     # The template will access character.name, character._current_health, etc.
-    return render_template('character.html', character=character)
+    
+    # current_url = request.url
+    
+    current_url = request.url
+    parsed_url = urlparse(current_url)
+    # new_url = f"{parsed_url.scheme}://{parsed_url.netloc}/view/{character.name}"
+    
+    custom_port = "5001"  # Example port number
+    new_url = f"{parsed_url.scheme}://{parsed_url.netloc.split(':')[0]}:{custom_port}/view/{character.name}"
+
+    
+    
+    qr_image = generate_qr_code_image(new_url)
+    qr_data_url = image_to_base64_data_url(qr_image)
+    
+    return render_template('character.html', character=character, qr_image_url=qr_data_url)
 
 
 if __name__ == '__main__':
     # Run the app in debug mode (useful for development)
     # In production, you would use a more robust server like Gunicorn or uWSGI
     # Use threaded=True to handle multiple requests simultaneously (basic threading)
-    app.run(debug=True, threaded=True)
+    app.run(debug=True, threaded=True, host="0.0.0.0")

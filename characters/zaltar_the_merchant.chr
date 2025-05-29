@@ -1,7 +1,7 @@
 {
     "name": "Zaltar the Merchant",
     "max_health": 70,
-    "_current_health": 70,
+    "_current_health": 50,
     "armour_class": 10,
     "strength": 10,
     "dexterity": 10,
@@ -9,17 +9,11 @@
     "intelligence": 10,
     "wisdom": 10,
     "charisma": 10,
-    "_conditions": [
-        {
-            "name": "bleeding",
-            "value": -1.0,
-            "attribute": "health"
-        }
-    ],
+    "_conditions": [],
     "_inventory": [
         {
             "name": "Iron Sword",
-            "amount": 2,
+            "amount": 1,
             "value": 100.0,
             "weight": 10.0,
             "gold_value": 20.0,
